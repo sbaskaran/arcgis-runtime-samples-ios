@@ -23,6 +23,7 @@ class SketchViewController: UIViewController {
     @IBOutlet private weak var redoBBI:UIBarButtonItem!
     @IBOutlet private weak var clearBBI:UIBarButtonItem!
     
+    @IBOutlet weak var sketchStyleSegmentControl: UISegmentedControl!
     
     private var map:AGSMap!
     private var sketchEditor:AGSSketchEditor!
@@ -69,15 +70,51 @@ class SketchViewController: UIViewController {
             self.sketchEditor.startWithGeometryType(.Point)
             
         case 1://polyline
-            self.sketchEditor.startWithGeometryType(.Polyline)
+            
+            if sketchStyleSegmentControl.selectedSegmentIndex == 0 {
+                self.sketchEditor.startWithGeometryType(.Polyline)
+            }
+            else {
+                self.sketchEditor.startWithCreationMode(.FreehandPolyline)
+            }
             
         case 2://polygon
-            self.sketchEditor.startWithGeometryType(.Polygon)
+            if sketchStyleSegmentControl.selectedSegmentIndex == 0 {
+                self.sketchEditor.startWithGeometryType(.Polygon)
+            }
+            else {
+                self.sketchEditor.startWithCreationMode(.FreehandPolygon)
+            }
+            
         default:
             break
         }
         self.mapView.sketchEditor = self.sketchEditor
     }
+    
+    @IBAction func sketchStyleChanged(sender: UISegmentedControl) {
+        
+        switch sender.selectedSegmentIndex {
+        case 0: //Vertex Based Sketching
+            if geometrySegmentedControl.selectedSegmentIndex == 1 {
+                self.sketchEditor.startWithGeometryType(.Polyline)
+            }
+            else if geometrySegmentedControl.selectedSegmentIndex == 2 {
+                self.sketchEditor.startWithGeometryType(.Polygon)
+            }
+            
+        case 1: //Freehand sketching
+            if geometrySegmentedControl.selectedSegmentIndex == 1 {
+                self.sketchEditor.startWithCreationMode(.FreehandPolyline)
+            }
+            else if geometrySegmentedControl.selectedSegmentIndex == 2 {
+                self.sketchEditor.startWithCreationMode(.FreehandPolygon)
+            }
+        default:
+            break
+        }
+    }
+    
     
     @IBAction func undo() {
         if self.sketchEditor.undoManager.canUndo { //extra check, just to be sure
